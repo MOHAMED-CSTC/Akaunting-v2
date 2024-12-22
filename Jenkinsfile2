@@ -1,0 +1,20 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('SCM') {
+            steps {
+                checkout scm
+            }
+        }
+stage('OWASP Dependency-Check') {
+            steps {
+                script {
+                    sh '''
+                        dependency-check --project "Akauting_scan" --scan ./ --out dependency-check-report --format HTML
+                    '''
+                }
+            }
+        }
+    }
+}
