@@ -1,21 +1,21 @@
 pipeline {
-    agent { label 'linux' }
-    options {
-        buildDiscarder(logRotator(numToKeepStr: '5'))
-        timestamps() 
-    }
-    stages {
-        stage('Checkout') {
-            steps {
-                checkout scm 
+    agent any 
+    
+    stages { 
+        stage('SCM Checkout') {
+            steps{
+           git branch: 'main', url: 'https://github.com/MOHAMED-CSTC/Akaunting-v2.git'
             }
         }
-        stage('SonarQube Scan') {
+        // run sonarqube test
+        stage('Run Sonarqube') {
+            environment {
+                scannerHome = tool 'SonarScanner';
+            }
             steps {
-                withSonarQubeEnv('SonarScanner') {
-                    sh './mvnw clean org.sonarsource.scanner.maven:sonar-maven-plugin:6.2.1.4610:sonar'
-                }
+              withSonarQubeEnv(credentialsId: 'Jenkins_token', installationName: 'SonarScanner') {
+                sh "${scannerHome}/bin/sonar-scanner"
+              }
             }
         }
     }
-}
