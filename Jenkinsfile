@@ -13,7 +13,7 @@ pipeline {
             }
             steps {
                 withSonarQubeEnv('SonarScanner') { // Nom de l'installation SonarQube dans Jenkins
-                    sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=SonarScanner -Dsonar.host.url=http://localhost:9000 -Dsonar.login=squ_85c7fc552caddcd33b36dc220ea2e0f37199f711"
+                    sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=Akaunting_scan -Dsonar.host.url=http://http://172.24.131.219:9000 -Dsonar.login=squ_681f506b7ae339e3decc7bedafd9ce152dc901f2"
                 }
             }
         }
