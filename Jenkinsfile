@@ -18,17 +18,6 @@ pipeline {
                 }
             }
         }
-
-        stage('OWASP Dependency-Check') {
-            steps {
-                script {
-                    // Exécute OWASP Dependency-Check en ligne de commande
-                    // Vous pouvez ajuster le chemin du projet selon la structure de votre code
-                    sh '''
-                        dependency-check --project "Akauting_scan" --scan . --out dependency-check-report --format "HTML"
-                    '''
-                }
-            }
-        }
+       
     }
 }
