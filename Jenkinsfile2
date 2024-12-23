@@ -14,15 +14,8 @@ pipeline {
                 // Exécute l'analyse OWASP Dependency-Check
                 dependencyCheck additionalArguments: '--scan ./ --out ./dependency-check-report', odcInstallation: 'dependency-check'
 
-                // Publie les résultats de l'analyse sous forme de rapport HTML
-                dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.html'
+                // Publie les résultats de l'analyse sous forme de rapport XML
+                dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.xml'
             }
         }
     }
-    post {
-        always {
-            // Archive le rapport HTML généré par Dependency-Check
-            archiveArtifacts artifacts: 'dependency-check-report/dependency-check-report.html', allowEmptyArchive: true
-        }
-    }
-}
