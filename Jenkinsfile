@@ -24,12 +24,11 @@ pipeline {
                 echo 'Building...'
             }
         }
-
         stage('Test') {
             steps {
                 echo 'Testing...'
                 snykSecurity(
-                    snykInstallation: 'Snyk',
+                    snykInstallation: 'Snyk_API',
                     snykTokenId: '0d7defb4-f846-433b-ae12-9b014f7ae932'
                     // Ajouter d'autres paramètres ici si nécessaire
                 )
