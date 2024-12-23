@@ -7,14 +7,22 @@ pipeline {
                 checkout scm
             }
         }
-stage('OWASP Dependency-Check') {
+
+        stage('OWASP SCAN') {
             steps {
-                script {
-                    sh '''
-                        dependency-check --project "Akauting_scan" --scan ./ --out dependency-check-report --format HTML
-                    '''
-                }
+                // Exécute l'analyse OWASP Dependency-Check
+                dependencyCheck additionalArguments: '--scan ./', odcInstallation: 'dependency-check'
+
+                // Publie les résultats de l'analyse sous forme de rapport HTML
+                dependencyCheckPublisher pattern: '**/dependency-check-report.html'
             }
+        }
+    }
+
+    post {
+        always {
+            // Archive le rapport HTML généré par Dependency-Check, s'il existe
+            archiveArtifacts artifacts: '**/dependency-check-report.html', allowEmptyArchive: true
         }
     }
 }
