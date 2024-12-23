@@ -2,24 +2,23 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Models\Auth\User;
+use Illuminate\Support\Str;
 use App\Abstracts\Http\Controller;
-use App\Http\Requests\Auth\Register as Request;
 use App\Jobs\Auth\DeleteInvitation;
 use App\Models\Auth\UserInvitation;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Foundation\Auth\RegistersUsers;
-use Illuminate\Support\Str;
+use App\Http\Requests\Auth\Register as Request;
 
 class Register extends Controller
 {
-    use RegistersUsers;
-
     /**
      * Where to redirect users after registration.
      *
      * @var string
      */
-    protected $redirectTo = '/';
+    protected $redirectTo = '/dashboard';
 
     /**
      * Create a new controller instance.
@@ -28,61 +27,100 @@ class Register extends Controller
      */
     public function __construct()
     {
-        $this->middleware('guest');
-    }
-
-    public function create($token)
-    {
-        $invitation = UserInvitation::token($token)->first();
-
-        if ($invitation) {
-            return view('auth.register.create', ['token' => $token]);
-        }
-
-        abort(403);
-    }
-
-    public function store(Request $request)
-    {
-        $invitation = UserInvitation::token($request->get('token'))->first();
-
-        if (!$invitation) {
-            abort(403);
-        }
-
-        $user = $invitation->user;
-
-        $this->dispatch(new DeleteInvitation($invitation));
-
-        event(new Registered($user));
-
-        if ($response = $this->registered($request, $user)) {
-            return $response;
-        }
+        $this->middleware('guest');  // Ensure only guests can access registration
     }
 
     /**
-     * The user has been registered.
+     * Display the registration form.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  mixed  $user
-     * @return mixed
+     * @return \Illuminate\View\View
      */
-    protected function registered(Request $request, $user)
+    // public function create($token)
+    public function create()
     {
-        $user->forceFill([
-            'password' => $request->password,
-            'remember_token' => Str::random(60),
-        ])->save();
+        $required = ['name' => true, 'email' => true, 'password' => true];
+        // $invitation = UserInvitation::token(token: $token)->first();
 
-        $this->guard()->login($user);
+        // if ($invitation) {
+        //     return view('auth.register.create', ['token' => $token]);
+        // }
+    
+        // abort(403);
+        return view('auth.register.create',compact('required'));
+    }
 
-        $message = trans('messages.success.connected', ['type' => trans_choice('general.users', 1)]);
-
-        flash($message)->success();
-
-        return response()->json([
-            'redirect' => url($this->redirectPath()),
+    /**
+     * Handle a registration request for the application.
+     *
+     * @param  \App\Http\Requests\Auth\Register  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function store(Request $request)
+    {
+        try {
+            // Validate the request
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|confirmed|min:6', // Ensure the password is confirmed
+            ]);
+    
+            // Prepare user data
+            $userData = array_merge($validated, [
+                'password' => Hash::make($validated['password']),
+                'locale' => app()->getLocale(),
+                'enabled' => true,
+                'landing_page' => '/dashboard',
+                'created_from' => $request->ip(),
+                'created_by' => null,
+            ]);
+    
+            // Debugging logs
+            \Log::info('Creating user with data:', $userData);
+    
+            // Create the user
+            $user = User::create($userData);
+    
+            // Trigger the Registered event
+            event(new Registered($user));
+    
+            // Redirect with a success message
+            return redirect()->route('login')->with('success', 'Registration successful');
+        } catch (\Throwable $e) {
+            // Log the error for debugging
+            \Log::error('Error creating user: ' . $e->getMessage());
+    
+            // Redirect back with a friendly error message
+            return redirect()->back()->withErrors(['error' => 'User creation failed. Please try again later.']);
+        }
+    }
+    
+    /**
+     * Create a new user instance after a valid registration.
+     *
+     * @param  array  $data
+     * @return User
+     */
+    protected function createUser(array $data)
+    {
+        return User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
         ]);
+    }
+
+    /**
+     * Define validation rules for registration
+     *
+     * @return array
+     */
+    public function rules()
+    {
+        return [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+        ];
     }
 }

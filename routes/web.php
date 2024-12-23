@@ -14,3 +14,8 @@ use Livewire\Livewire;
 
     return Route::get($base . '/vendor/livewire/livewire/dist/livewire.min.js', $handle);
 });
+
+
+Route::get('/', function(){
+    return view('home.index') ;
+})->name('home');

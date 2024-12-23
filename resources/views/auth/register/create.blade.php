@@ -9,7 +9,7 @@
 
             <h1 class="text-lg my-3">
                 {{ trans('auth.register_user') }}
-            </h1>
+            </h1> 
         </div>
 
         <div :class="(form.response.success) ? 'w-full bg-green-100 text-green-600 p-3 rounded-sm font-semibold text-xs' : 'hidden'"
@@ -26,7 +26,6 @@
 
         <x-form id="auth" route="register.store">
             <div class="grid sm:grid-cols-6 gap-x-8 gap-y-6 my-3.5 lg:h-64">
-                <x-form.input.hidden name="token" value="{{ $token }}" />
 
                 <x-form.group.password
                     name="password"
