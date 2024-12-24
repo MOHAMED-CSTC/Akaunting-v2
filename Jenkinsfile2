@@ -1,22 +1,29 @@
 pipeline {
-    agent any
+  agent any
 
-    stages {
-        stage('SCM') {
-            steps {
-                // Récupérer le code source depuis le dépôt SCM
-                checkout scm
-            }
-        }
-
-        stage('OWASP SCAN') {
-            steps {
-                // Exécute l'analyse OWASP Dependency-Check
-                dependencyCheck additionalArguments: '--scan ./ --out ./dependency-check-report', odcInstallation: 'dependency-check'
-
-                // Publie les résultats de l'analyse sous forme de rapport XML
-                dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.xml'
-            }
-        }
+  stages {
+    stage('Build') {
+      steps {
+        echo 'Building...'
+      }
     }
+    stage('Test') {
+      steps {
+        echo 'Testing...'
+        snykSecurity(
+          snykInstallation: 'Snyk',
+          snykTokenId: 'Snyk_AP',
+          // Autres paramètres optionnels :
+          additionalArguments: '--all-projects --detection-depth=3', // Scanne tous les projets avec une profondeur de détection de 3
+          monitorProjectOnBuild: true, // Surveille le projet pour détecter les nouvelles vulnérabilités
+          failOnIssues: true          // Échoue le pipeline si des vulnérabilités sont trouvées
+        )
+      }
+    }
+    stage('Deploy') {
+      steps {
+        echo 'Deploying...'
+      }
+    }
+  }
 }
