@@ -28,10 +28,10 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Testing...'
-                withCredentials([string(credentialsId: '48182f96-b58c-40d9-830c-c7d7404136a8', variable: 'SNYK_API')]) {
+                withCredentials([string(credentialsId: '48182f96-b58c-40d9-830c-c7d7404136a8', variable: 'Snyk_API')]) {
                     snykSecurity(
                         snykInstallation: 'Snyk',
-                        snykTokenId: SNYK_API
+                        snykTokenId: Snyk_API
                     )
                 }
             }
