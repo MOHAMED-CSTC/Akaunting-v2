@@ -1,29 +1,48 @@
 pipeline {
-  agent any
+    agent any
+    tools {
+        composer 'Composer' // Assurez-vous que Composer est installé dans Jenkins
+    }
+    stages {
+        stage('SCM') {
+            steps {
+                // Récupérer le code source depuis le dépôt SCM
+                checkout scm
+            }
+        }
 
-  stages {
-    stage('Build') {
-      steps {
-        echo 'Building...'
-      }
+        stage('Install PHP Dependencies') {
+            steps {
+                // Installer les dépendances PHP avec Composer
+                sh 'composer install'
+            }
+        }
+
+        stage('Snyk Analysis') {
+            steps {
+                // Analyser le projet avec Snyk
+                snykSecurity(
+                    snykInstallation: 'Snyk', 
+                    snykTokenId: 'Snyk_API',
+                    monitorProjectOnBuild: true, 
+                    failOnIssues: true,
+                    additionalArguments: '--file=composer.json --debug'
+                )
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Building...'
+                // Ajoutez vos étapes de build ici
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying...'
+                // Ajoutez vos étapes de déploiement ici
+            }
+        }
     }
-    stage('Test') {
-      steps {
-        echo 'Testing...'
-        snykSecurity(
-          snykInstallation: 'Snyk',
-          snykTokenId: 'Snyk_API',
-          // Autres paramètres optionnels :
-          additionalArguments: '--all-projects --detection-depth=3', // Scanne tous les projets avec une profondeur de détection de 3
-          monitorProjectOnBuild: true, // Surveille le projet pour détecter les nouvelles vulnérabilités
-          failOnIssues: true          // Échoue le pipeline si des vulnérabilités sont trouvées
-        )
-      }
-    }
-    stage('Deploy') {
-      steps {
-        echo 'Deploying...'
-      }
-    }
-  }
 }
