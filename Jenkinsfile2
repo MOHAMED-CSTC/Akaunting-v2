@@ -1,8 +1,5 @@
 pipeline {
     agent any
-    tools {
-        composer 'Composer' // Assurez-vous que Composer est installé dans Jenkins
-    }
     stages {
         stage('SCM') {
             steps {
@@ -11,10 +8,22 @@ pipeline {
             }
         }
 
+        stage('Install Composer') {
+            steps {
+                // Télécharger et installer Composer
+                sh '''
+                if [ ! -f composer ]; then
+                    curl -sS https://getcomposer.org/installer | php
+                    mv composer.phar composer
+                fi
+                '''
+            }
+        }
+
         stage('Install PHP Dependencies') {
             steps {
-                // Installer les dépendances PHP avec Composer
-                sh 'composer install'
+                // Utiliser Composer pour installer les dépendances PHP
+                sh './composer install'
             }
         }
 
@@ -23,7 +32,7 @@ pipeline {
                 // Analyser le projet avec Snyk
                 snykSecurity(
                     snykInstallation: 'Snyk', 
-                    snykTokenId: 'Snyk_API',
+                    snykTokenId: 'snyk-token-id',
                     monitorProjectOnBuild: true, 
                     failOnIssues: true,
                     additionalArguments: '--file=composer.json --debug'
