@@ -20,8 +20,7 @@ pipeline {
         stage('OWASP Dependency-Check Analysis') {
             steps {
                 // Exécute l'analyse OWASP Dependency-Check
-                dependencyCheck additionalArguments: '--scan ./ --out ./dependency-check-report --format ALL', 
-                                odcInstallation: 'dependency-check'
+                dependencyCheck additionalArguments: '--scan ./ --out ./dependency-check-report' , odcInstallation: 'dependency-check'
 
                 // Publie les résultats de l'analyse sous forme de rapport XML
                 dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.xml'
