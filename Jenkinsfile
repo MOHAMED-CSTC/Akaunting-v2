@@ -17,7 +17,7 @@ pipeline {
                 }
             }
         }
-        stage('OWASP SCAN') {
+        stage('OWASP Dependency-Check Analysis') {
             steps {
                 // Exécute l'analyse OWASP Dependency-Check
                 dependencyCheck additionalArguments: '--scan ./ --out ./dependency-check-report --format ALL', 
@@ -35,7 +35,7 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage('Snyk Analysis') {
             steps {
                 echo 'Testing...'
                 snykSecurity(
