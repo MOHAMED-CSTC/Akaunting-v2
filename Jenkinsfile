@@ -1,19 +1,44 @@
 pipeline {
     agent any
-
+    tools {
+        // Spécifiez les outils nécessaires pour la pipeline
+        sonarQube 'SonarScanner'
+    }
     stages {
         stage('SCM') {
             steps {
-                echo 'Checking out code from SCM...'
-                checkout scm // Vérifie et récupère le code source depuis le référentiel configuré
+                // Récupérer le code source depuis le dépôt SCM
+                checkout scm
             }
         }
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    def scannerHome = tool 'SonarScanner'
+                    withSonarQubeEnv() {
+                        sh "${scannerHome}/bin/sonar-scanner"
+                    }
+                }
+            }
+        }
+        stage('OWASP SCAN') {
+            steps {
+                // Exécute l'analyse OWASP Dependency-Check
+                dependencyCheck additionalArguments: '--scan ./ --out ./dependency-check-report', 
+                                odcInstallation: 'dependency-check'
+
+                // Publie les résultats de l'analyse sous forme de rapport XML
+                dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.xml'
+            }
+        }
+
         stage('Build') {
             steps {
                 echo 'Building...'
                 // Ajoutez vos étapes de build ici
             }
         }
+
         stage('Test') {
             steps {
                 echo 'Testing...'
@@ -25,6 +50,7 @@ pipeline {
                 )
             }
         }
+
         stage('Deploy') {
             steps {
                 echo 'Deploying...'
