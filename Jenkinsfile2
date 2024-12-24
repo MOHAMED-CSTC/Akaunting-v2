@@ -12,7 +12,7 @@ pipeline {
         echo 'Testing...'
         snykSecurity(
           snykInstallation: 'Snyk',
-          snykTokenId: 'Snyk_AP',
+          snykTokenId: 'Snyk_API',
           // Autres paramètres optionnels :
           additionalArguments: '--all-projects --detection-depth=3', // Scanne tous les projets avec une profondeur de détection de 3
           monitorProjectOnBuild: true, // Surveille le projet pour détecter les nouvelles vulnérabilités
