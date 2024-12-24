@@ -1,9 +1,5 @@
 pipeline {
     agent any
-    tools {
-        // Spécifiez les outils nécessaires pour la pipeline
-        sonarQube 'SonarScanner'
-    }
     stages {
         stage('SCM') {
             steps {
