@@ -39,7 +39,7 @@ pipeline {
                 echo 'Testing...'
                 snykSecurity(
                     snykInstallation: 'Snyk', // Remplacez par le nom de votre installation Snyk dans Jenkins
-                    snykTokenId: 'Snyk_API',  // Assurez-vous que ce credential existe dans Jenkins
+                    snykTokenId: '757fcbf3-b87b-46ec-8e9e-b217236b0897',  // Assurez-vous que ce credential existe dans Jenkins
                     monitorProjectOnBuild: true, // Optionnel : pour surveiller le projet
                     failOnIssues: true         // Optionnel : échoue si des vulnérabilités sont trouvées
                 )
