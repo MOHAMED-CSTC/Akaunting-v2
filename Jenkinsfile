@@ -7,16 +7,24 @@ pipeline {
                 checkout scm
             }
         }
-
+        stage('Build') {
+            steps {
+                echo 'Building...'
+            }
+        }
         stage('Test') {
             steps {
                 echo 'Testing...'
-                withCredentials([string(credentialsId: '48182f96-b58c-40d9-830c-c7d7404136a8', variable: 'SNYK_API')]) {
-                    snykSecurity(
-                        snykInstallation: 'Snyk',
-                        snykTokenId: SNYK_API
-                    )
-                }
+                snykSecurity(
+                    snykInstallation: 'Snyk', // Remplacez par le nom de votre installation Snyk configurée dans Jenkins
+                    snykTokenId: 'Snyk_API'  // Assurez-vous que ce credential existe
+                    // Ajoutez d'autres paramètres si nécessaire
+                )
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying...'
             }
         }
     }
