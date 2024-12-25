@@ -1,0 +1,43 @@
+pipeline {
+    agent {
+        docker {
+            image 'docker:23' // Utilisation de l'image Docker officielle
+            args '--privileged' // Pour activer Docker-in-Docker (dind)
+        }
+    }
+
+    environment {
+        DOCKER_PASSWORD = credentials('Docker_token') // Remplacer par votre ID Jenkins Credentials pour le mot de passe Docker
+        DOCKER_USER = credentials('Docker_token')     // Remplacer par votre ID Jenkins Credentials pour le nom d'utilisateur Docker
+    }
+
+    stages {
+        stage('Build and Push Docker Image') {
+            steps {
+                script {
+                    // Lancer Docker-in-Docker
+                    sh 'dockerd-entrypoint.sh &'
+                    sleep(5) // Attendre que Docker démarre
+
+                    // Connexion à Docker Hub
+                    sh '''
+                        echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USER" --password-stdin
+                    '''
+
+                    // Pull, Tag et Push l'image Docker
+                    sh '''
+                        docker pull akaunting/akaunting
+                        docker tag akaunting/akaunting mohamedbouchakour/akauting_cstc:v1
+                        docker push mohamedbouchakour/akauting_cstc:v1
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline completed!'
+        }
+    }
+}
