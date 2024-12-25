@@ -2,9 +2,9 @@ pipeline {
   agent any
 
   environment {
-    DOCKER_REGISTRY = 'docker.io'                                // Registre Docker (Docker Hub)
+    DOCKER_REGISTRY = 'docker.io'                                 // Registre Docker (Docker Hub)
     DOCKER_IMAGE = 'mohamedbouchakour/akauting_cstc'             // Nom de l'image dans Docker Hub
-    DOCKER_CREDENTIALS_ID = 'docker-hub-credentials-id'          // ID des credentials Jenkins pour Docker Hub
+    DOCKER_CREDENTIALS_ID = 'Docker_token'                      // ID des credentials Jenkins pour Docker Hub
   }
 
   stages {
