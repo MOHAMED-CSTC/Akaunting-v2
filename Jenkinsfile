@@ -32,7 +32,6 @@ pipeline {
                 script {
                     echo 'Building Docker image...'
                     // Construire l'image Docker
-                    sh 'docker build -t my-image:latest .'
                 }
             }
         }
@@ -41,12 +40,10 @@ pipeline {
                 script {
                     echo 'Pushing Docker image...'
                     // Pousser l'image vers le registre Docker (assurez-vous d'être connecté)
-                    sh 'docker push my-image:latest'
                 }
             }
         }
     }
-
     post {
         always {
             echo 'Pipeline completed'
