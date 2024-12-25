@@ -32,7 +32,7 @@ pipeline {
                 // Analyser le projet avec Snyk
                 snykSecurity(
                     snykInstallation: 'Snyk', 
-                    snykTokenId: 'snyk-token-id',
+                    snykTokenId: 'Snyk_API',
                     monitorProjectOnBuild: true, 
                     failOnIssues: true,
                     additionalArguments: '--file=composer.json --debug'
