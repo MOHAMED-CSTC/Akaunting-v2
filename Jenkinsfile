@@ -1,8 +1,6 @@
 pipeline {
     agent any
-    options {
-        buildDiscarder(logRotator(numToKeepStr: '10')) // Conserve les 5 derniers builds
-    }
+    
     environment {
         DOCKERHUB_CREDENTIALS = credentials('Docker_token') // Jeton Docker Hub
     }
