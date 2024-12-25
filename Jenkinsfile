@@ -28,9 +28,6 @@ pipeline {
                 dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.xml'
             }
         }
-     
-        failure {
-            echo "Échec du pipeline. Veuillez vérifier les journaux pour diagnostiquer le problème."
-        }
-    }
+        
+      }   
 }
