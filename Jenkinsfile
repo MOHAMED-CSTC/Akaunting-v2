@@ -26,31 +26,6 @@ pipeline {
                 dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.xml'
             }
         }
-
-        stage('Build') {
-            steps {
-                echo 'Building...'
-                // Ajoutez vos étapes de build ici
-            }
-        }
-
-        stage('Snyk Analysis') {
-            steps {
-                echo 'Testing...'
-                snykSecurity(
-                    snykInstallation: 'Snyk', // Remplacez par le nom de votre installation Snyk dans Jenkins
-                    snykTokenId: 'Snyk_API',  // Assurez-vous que ce credential existe dans Jenkins
-                    monitorProjectOnBuild: true, // Optionnel : pour surveiller le projet
-                    failOnIssues: true         // Optionnel : échoue si des vulnérabilités sont trouvées
-                )
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                echo 'Deploying...'
-                // Ajoutez vos étapes de déploiement ici
-            }
-        }
     }
 }
+        
