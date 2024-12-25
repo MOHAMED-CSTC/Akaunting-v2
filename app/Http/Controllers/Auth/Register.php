@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Models\Auth\User;
+use App\Models\Common\Company;
 use Illuminate\Support\Str;
 use App\Abstracts\Http\Controller;
 use App\Jobs\Auth\DeleteInvitation;
@@ -10,6 +11,9 @@ use App\Models\Auth\UserInvitation;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
 use App\Http\Requests\Auth\Register as Request;
+use App\Utilities\Installer;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class Register extends Controller
 {
@@ -38,15 +42,7 @@ class Register extends Controller
     // public function create($token)
     public function create()
     {
-        $required = ['name' => true, 'email' => true, 'password' => true];
-        // $invitation = UserInvitation::token(token: $token)->first();
-
-        // if ($invitation) {
-        //     return view('auth.register.create', ['token' => $token]);
-        // }
-    
-        // abort(403);
-        return view('auth.register.create',compact('required'));
+        return view('auth.register.create');
     }
 
     /**
@@ -55,46 +51,48 @@ class Register extends Controller
      * @param  \App\Http\Requests\Auth\Register  $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+
+     public function store(Request $request)
     {
+        $request->validate([
+            'company_name'  => 'required|string|max:255',
+            'company_email' => 'required|email|max:255|unique:companies,email',
+            'email'         => 'required|email|max:255|unique:users,email',
+            'user_password' => 'required|string|min:6',
+        ]);
+
         try {
-            // Validate the request
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users',
-                'password' => 'required|string|confirmed|min:6', // Ensure the password is confirmed
+            DB::transaction(function () use ($request) {
+                // Create the company
+                $company = Company::create([
+                    'name'  => $request->input('company_name'),
+                    'email' => $request->input('company_email'),
+                ]);
+
+                // Create the admin user
+                $user = User::create([
+                    'name'       => 'Admin',
+                    'email'      => $request->input('email'),
+                    'password'   => Hash::make($request->input('user_password')),
+                    'company_id' => $company->id, // Assuming `users` has a `company_id` foreign key
+                ]);
+
+                // Fire the Registered event
+                event(new Registered($user));
+            });
+
+            return redirect()->route('login')->with('success', 'Registration successful! You can now log in.');
+        } catch (\Exception $e) {
+            Log::error('Registration error: ' . $e->getMessage());
+
+            return redirect()->back()->withErrors([
+                'error' => 'An error occurred during registration. Please try again later.',
             ]);
-    
-            // Prepare user data
-            $userData = array_merge($validated, [
-                'password' => Hash::make($validated['password']),
-                'locale' => app()->getLocale(),
-                'enabled' => true,
-                'landing_page' => '/dashboard',
-                'created_from' => $request->ip(),
-                'created_by' => null,
-            ]);
-    
-            // Debugging logs
-            \Log::info('Creating user with data:', $userData);
-    
-            // Create the user
-            $user = User::create($userData);
-    
-            // Trigger the Registered event
-            event(new Registered($user));
-    
-            // Redirect with a success message
-            return redirect()->route('login')->with('success', 'Registration successful');
-        } catch (\Throwable $e) {
-            // Log the error for debugging
-            \Log::error('Error creating user: ' . $e->getMessage());
-    
-            // Redirect back with a friendly error message
-            return redirect()->back()->withErrors(['error' => 'User creation failed. Please try again later.']);
         }
     }
     
+
+
     /**
      * Create a new user instance after a valid registration.
      *
