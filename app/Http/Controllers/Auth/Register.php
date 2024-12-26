@@ -52,12 +52,14 @@ class Register extends Controller
      * @return \Illuminate\Http\RedirectResponse
      */
 
-     public function store(Request $request)
+    public function store(Request $request)
     {
+        dump('Store Function');
+
         $request->validate([
-            'company_name'  => 'required|string|max:255',
+            'company_name' => 'required|string|max:255',
             'company_email' => 'required|email|max:255|unique:companies,email',
-            'email'         => 'required|email|max:255|unique:users,email',
+            'email' => 'required|email|max:255|unique:users,email',
             'user_password' => 'required|string|min:6',
         ]);
 
@@ -82,6 +84,8 @@ class Register extends Controller
             });
 
             return redirect()->route('login')->with('success', 'Registration successful! You can now log in.');
+
+
         } catch (\Exception $e) {
             Log::error('Registration error: ' . $e->getMessage());
 
@@ -90,8 +94,6 @@ class Register extends Controller
             ]);
         }
     }
-    
-
 
     /**
      * Create a new user instance after a valid registration.
@@ -122,3 +124,4 @@ class Register extends Controller
         ];
     }
 }
+

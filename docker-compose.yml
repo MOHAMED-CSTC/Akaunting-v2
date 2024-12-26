@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: akaunting-app
+    container_name: akaunting-app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+    networks:
+      - akaunting-network
+
+  webserver:
+    image: nginx:alpine
+    container_name: akaunting-webserver
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www
+      - ./nginx.example.com.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - akaunting-network
+
+  db:
+    image: mysql:5.7
+    container_name: akaunting-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: akaunting
+      MYSQL_USER: akaunting
+      MYSQL_PASSWORD: akaunting
+    ports:
+      - "3306:3306"
+    networks:
+      - akaunting-network
+
+networks:
+  akaunting-network:
+    driver: bridge
